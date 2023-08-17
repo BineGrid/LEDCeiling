@@ -4,26 +4,28 @@
 
 
 def command_processor(command, arguments):
-    if command == "print":
-        print("Arguments for 'print':", arguments)
-    elif command == "multiply":
-        try:
-            num = float(arguments)
-            result = num * 2
-            print("Result of multiplying by 2:", result)
-        except ValueError:
-            print("Invalid argument for 'multiply':", arguments)
-    elif command == "length":
-        length = len(arguments)
-        print("Length of argument:", length)
+    if command == "help":
+        print("Available Commands Are:")
+        print("Clear      - (Turns all the LEDs off)")
+        print("Fill r g b - (Fills all the LEDs with one color)")
     else:
-        print("Unknown command:", command)
+        print("\"", command, "\" is an unrecognized command", sep="")
 
 
-user_input = input("Enter command: ")
-# Read the first five characters and convert to lowercase
-command = user_input[:5].lower()
-# Extract the remaining input and remove leading/trailing spaces
-arguments = user_input[5:].strip()
+# Command Loop to process user input
+command = ""
+print("Running LEDMaster enter commands below\ntype \"help\" to get a list of commands\nType \"quit\" to end the program\n")
 
-command_processor(command, arguments)
+while command != "quit":
+    user_input = input("LEDMaster: ")
+    
+    # Splits the input into "words" 
+    words = user_input.split()
+    
+    # Pop out the first "word" aka the command
+    command = words.pop(0).lower()
+    
+    # The arguments are the "words" that remain in the arr
+    arguments = words
+
+    command_processor(command, arguments)
