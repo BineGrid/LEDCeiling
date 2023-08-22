@@ -6,13 +6,13 @@ import neopixel
 pixel_pin = board.D12
 
 # The number of NeoPixels in total
-num_pixels = 600
+num_pixels = 47
 
 # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
 ORDER = neopixel.GRB
 
 pixels = neopixel.NeoPixel(
-    pixel_pin, num_pixels, brightness=0.5, auto_write=False, pixel_order=ORDER
+    pixel_pin, num_pixels, brightness=0.008, auto_write=False, pixel_order=ORDER
 )
 
 def individualColorTest(wait: float, testRed = True, testBlue = True, 
@@ -39,4 +39,4 @@ def individualColorTest(wait: float, testRed = True, testBlue = True,
             time.sleep(wait)
         
     
-
+individualColorTest(.1)
