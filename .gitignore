@@ -1,0 +1,7 @@
+# - Ignored Git Files - 
+*.pyc 
+/.vscode
+.save
+/DevLED/__pycache__
+
+
