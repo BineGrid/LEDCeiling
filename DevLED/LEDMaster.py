@@ -1,7 +1,7 @@
 import random
 from LEDMatrix import LEDMatrix
 
-matrix = LEDMatrix(3, 13)
+matrix = LEDMatrix(3, 13, holes=[(0,0),(1,0)])
 
 def isRGBinRange(RGBArr):
     '''

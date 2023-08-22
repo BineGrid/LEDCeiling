@@ -3,8 +3,19 @@ import time
 import board
 
 class LEDMatrix:
-    
-    def __init__(self, rows, cols, brightness=1.0, holes=[]):
+    def __init__(self, rows:int, cols:int, brightness=1.0, holes=[]):
+        '''
+            Enter in the number of rows and columns in your system as int's
+            
+            The brightness is defaulted to max, because you can also control
+            the brightness by just using the 0-255 color values, the brightness 
+            value just scales those 0-255 values
+            
+            For the holes, enter in an array of tuples like so holes=[(row, col), (row, col)...]
+            A hole is somewhere we expect there to be an LED, but for whatever reason we
+            can't put one there, thus we add a hole that way the strips all stay properly
+            aligned. Making displaying images and patterns look proper as if tho's LEDs where there
+        '''
         self.LEDRows = rows
         self.LEDCols = cols
         self.brightness = brightness
@@ -38,12 +49,35 @@ class LEDMatrix:
         self.pixels.brightness = level
         self.pixels.show()
         
+    # TODO combine with numHolesBeforeLED function
     def getLEDAddress(self, row:int, col:int):
+        '''
+            Takes in a row and col number and returns the address
+            within the pixels[] array of that LED
+            
+            Returns None if the LED is at a hole
+        '''
         if (row, col) in self.holes:
             return None
         if col % 2 == 1:
-            col = self.LEDRows - col - 1
-        return row * self.num_cols + col
+            row = self.LEDRows - row - 1
+        return (row * self.LEDCols + col)
+    
+    # TODO Combine this function with the getLEDAddress function
+    def numHolesBeforeLED(self, row: int, col: int):
+        '''
+            This function takes in an LED address and tell you how
+            many holes "Fake LED" are before it
+            That way you can know how much to offest your new address
+        '''
+        numLEDs = 0
+        LEDAddress = self.getLEDAddress(row, col)
+
+        for hole in self.holes:
+            if (self.getLEDAddress(hole[0], hole[1]) < LEDAddress):
+                numLEDs += 1
+
+        return numLEDs
 
 
     def fillMatrix(self, red:int, green:int, blue:int):
@@ -55,20 +89,8 @@ class LEDMatrix:
         
         self.pixels.fill((red, blue, green))
         self.pixels.show()
-        
-    def numHolesBeforeLED(self, address:int):
-        '''
-            This function takes in an LED address and tell you how
-            many holes "Fake LED" are before it
-            That way you can know how much to offest your new address
-        '''
-        numLEDs = 0
-        for i in range(len(self.holes)):
-            if self.holes[i] < address:
-                numLEDs += 1
-        
-        return numLEDs
     
+    # TODO rewrite this to use the new getaddress function properly
     def fillColumn(self, col:int, red:int, green:int, blue:int):
         '''
             This will fill an entire col of the LEDs with 
@@ -80,7 +102,7 @@ class LEDMatrix:
 
         for i in range(self.LEDRows):
             # Calculate the correct LED address to set to emulate a "column"
-            currLEDNum = i + (self.LEDRows * col)
+            currLEDNum = self.getLEDAddress(i, col)
             
             # Check how many holes are before the LED and subtract the amount
             # from the current address to essentially skip thoughs LEDs
@@ -92,7 +114,8 @@ class LEDMatrix:
             self.pixels[currLEDNum] = (red, blue, green)
 
         self.pixels.show()
-        
+    
+    # TODO write this function
     def fillRow(self, row:int, red:int, green:int, blue:int):
         '''
             This will fill an entire row of the LEDs with 
@@ -108,15 +131,6 @@ class LEDMatrix:
 
         self.pixels.show()
         
-    def setLEDbyRowCol(self, row:int, col:int, red:int, green:int, blue:int):
-        '''
-            This function will take in a col and a LEDNum to determine 
-            what single LED you're trying to change. Each column starts counting
-            from 0. 0 starts at the LED against the back wall of the room
-            This function does not automatically call show()
-            
-            Args: Color values between 0-255
-        '''
         
-
+# TODO write the setLEDbyRowCol function
 
