@@ -1,7 +1,7 @@
 import random
 from LEDMatrix import LEDMatrix
 
-matrix = LEDMatrix(3, 13, holes=[(0,0),(1,0)])
+matrix = LEDMatrix(4, 8)
 
 def isRGBinRange(RGBArr):
     '''
@@ -53,15 +53,15 @@ def command_processor(command, arguments):
         except:
            print("Invalid arguments for fill!")
     elif command == "fillc":
-        try:
+        #try:
             if (isRGBinRange(arguments[1:])):
                 print("Filling Col ", arguments[0], " LEDs R=", arguments[1],
                       " G=", arguments[2], " B=", arguments[3], sep="")
                 matrix.fillColumn(int(arguments[0]), int(arguments[1]),int(arguments[2]), int(arguments[3]))
             else:
                 print("Color values should be between 0 and 255!!")
-        except:
-            print("Invalid arguments for fillc!")
+        #except:
+        #    print("Invalid arguments for fillc!")
     elif command == "fillr":
         try:
             if (isRGBinRange(arguments[1:])):
@@ -75,13 +75,6 @@ def command_processor(command, arguments):
             
     else:
         print("\"", command, "\" is an unrecognized command", sep="")
-
-# Test Code!
-for i in range(13):
-    if i % 2 == 1:
-        command_processor("fillc", [i, "100", "0", "100"])
-    else:
-        command_processor("fillc", [i, "100", "100", "0"])
 
 # Command Loop to process user input
 print("Running LEDMaster enter commands below\nType \"help\" to get a list of commands\nType \"quit\" to end the program\n")

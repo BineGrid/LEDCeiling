@@ -35,7 +35,6 @@ class LEDMatrix:
             pixel_pin, self.numLEDs, brightness=self.brightness, auto_write=False, pixel_order=ORDER
         )
         
-        
     def getNumLEDs(self):
         return self.numLEDs
     
@@ -48,36 +47,38 @@ class LEDMatrix:
     def setBrightness(self, level:float):
         self.pixels.brightness = level
         self.pixels.show()
-        
-    # TODO combine with numHolesBeforeLED function
-    def getLEDAddress(self, row:int, col:int):
-        '''
-            Takes in a row and col number and returns the address
-            within the pixels[] array of that LED
-            
-            Returns None if the LED is at a hole
-        '''
+
+    def getLEDAddress(self, row: int, col: int):
+        """
+            This function takes a row and column value and returns the address within the 1D pixels[] array.
+            It adjusts the address automatically to account for any holes in the system.
+            It returns None if the specified LED is at a hole.
+        """
+        # Check if the specified LED is at a hole
         if (row, col) in self.holes:
             return None
-        if col % 2 == 1:
-            row = self.LEDRows - row - 1
-        return (row * self.LEDCols + col)
-    
-    # TODO Combine this function with the getLEDAddress function
-    def numHolesBeforeLED(self, row: int, col: int):
-        '''
-            This function takes in an LED address and tell you how
-            many holes "Fake LED" are before it
-            That way you can know how much to offest your new address
-        '''
-        numLEDs = 0
-        LEDAddress = self.getLEDAddress(row, col)
 
+        # Initialize the variable to keep track of the adjusted LED holes
+        adjLEDHoles = 0
+
+        # Iterate through each hole to calculate adjusted LED holes
         for hole in self.holes:
-            if (self.getLEDAddress(hole[0], hole[1]) < LEDAddress):
-                numLEDs += 1
+            if hole[1] < col or (hole[1] == col and hole[0] <= row):
+                adjLEDHoles += 1
 
-        return numLEDs
+        # Calculate the total number of LEDs in the matrix
+        totalLEDs = self.getNumLEDs()
+
+        # Calculate the 1D address without considering adjusted holes
+        baseAddress = col * self.LEDRows + row
+
+        # Adjust the address by subtracting the count of holes before the specified LED
+        adjAddress = baseAddress - adjLEDHoles
+
+        # Ensure that the adjusted address stays within the range [0, total_leds)
+        adjAddress = max(0, min(adjAddress, totalLEDs - 1))
+
+        return adjAddress
 
 
     def fillMatrix(self, red:int, green:int, blue:int):
@@ -90,7 +91,6 @@ class LEDMatrix:
         self.pixels.fill((red, blue, green))
         self.pixels.show()
     
-    # TODO rewrite this to use the new getaddress function properly
     def fillColumn(self, col:int, red:int, green:int, blue:int):
         '''
             This will fill an entire col of the LEDs with 
@@ -103,33 +103,39 @@ class LEDMatrix:
         for i in range(self.LEDRows):
             # Calculate the correct LED address to set to emulate a "column"
             currLEDNum = self.getLEDAddress(i, col)
-            
-            # Check how many holes are before the LED and subtract the amount
-            # from the current address to essentially skip thoughs LEDs
-            holes_before = self.numHolesBeforeLED(currLEDNum)
-            currLEDNum = currLEDNum - holes_before
-            
-            print("Setting LED: ", currLEDNum, " to R=", red,
-                    " G=", green, " B=", blue, sep="")
-            self.pixels[currLEDNum] = (red, blue, green)
-
+            if currLEDNum is not None:
+                try:
+                    self.pixels[currLEDNum] = (red, blue, green)
+                    print("Setting LED: ", currLEDNum, " to R=", red,
+                        " G=", green, " B=", blue, sep="")
+                except:
+                    print("LED Address: ", currLEDNum, " Out of Bounds!!", sep="")
+                    
         self.pixels.show()
-    
-    # TODO write this function
+
     def fillRow(self, row:int, red:int, green:int, blue:int):
         '''
-            This will fill an entire row of the LEDs with 
+            This will fill an entire eow of the LEDs with 
             the same color
 
-            Row: starts counting from zero
+            Col: starts counting from zero
             Args: color values between 0 - 255
         '''
 
         for i in range(self.LEDCols):
-            currLEDNum = i + (self.LEDCols * row)
+            # Calculate the correct LED address to set to emulate a "column"
+            currLEDNum = self.getLEDAddress(row, i)
+            if currLEDNum is not None:
+                try:
+                    self.pixels[currLEDNum] = (red, blue, green)
+                    print("Setting LED: ", currLEDNum, " to R=", red,
+                          " G=", green, " B=", blue, sep="")
+                except:
+                    print("LED Address: ", currLEDNum,
+                          " Out of Bounds!!", sep="")
 
-
-        self.pixels.show()
+                # TODO Move this out of the for loop test code!
+                self.pixels.show()
         
         
 # TODO write the setLEDbyRowCol function
