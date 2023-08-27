@@ -1,7 +1,10 @@
-import random
 from LEDMatrix import LEDMatrix
+import json
 
-matrix = LEDMatrix(46, 4)
+with open("config.json", "r") as json_file:
+    config = json.load(json_file)
+
+matrix = LEDMatrix(config["rows"], config["columns"])
 
 def isRGBinRange(RGBArr):
     '''

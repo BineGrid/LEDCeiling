@@ -1,12 +1,16 @@
 import time
 import board
 import neopixel
+import json
+
+with open("config.json", "r") as json_file:
+    config = json.load(json_file)
 
 # PWM Pin connected to the LED's
 pixel_pin = board.D12
 
 # The number of NeoPixels in total
-num_pixels = 47 * 3
+num_pixels = config["rows"] * config["columns"]
 
 # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
 ORDER = neopixel.GRB
