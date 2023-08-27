@@ -12,16 +12,15 @@ import neopixel
 pixel_pin = board.D12
 
 # The number of NeoPixels
-num_pixels = 600
+num_pixels = 47*3
 
 # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
 # For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
 ORDER = neopixel.GRB
 
 pixels = neopixel.NeoPixel(
-    pixel_pin, num_pixels, brightness=1.0, auto_write=False, pixel_order=ORDER
+    pixel_pin, num_pixels, brightness=0.33, auto_write=False, pixel_order=ORDER
 )
-
 
 def wheel(pos):
     # Input a value 0 to 255 to get a color value.
@@ -44,7 +43,6 @@ def wheel(pos):
         b = int(255 - pos * 3)
     return (r, g, b) if ORDER in (neopixel.RGB, neopixel.GRB) else (r, g, b, 0)
 
-
 def rainbow_cycle(wait):
     for j in range(255):
         for i in range(num_pixels):
@@ -53,28 +51,28 @@ def rainbow_cycle(wait):
         pixels.show()
         time.sleep(wait)
 
-
 # Comment this line out if you have RGBW/GRBW NeoPixels
 pixels.fill((255, 0, 0))
 pixels.show()
-time.sleep(2)
+time.sleep(1)
 
 # Comment this line out if you have RGBW/GRBW NeoPixels
 pixels.fill((0, 255, 0))
 pixels.show()
-time.sleep(2)
+time.sleep(1)
 
 # Comment this line out if you have RGBW/GRBW NeoPixels
 pixels.fill((0, 0, 255))
 pixels.show()
-time.sleep(2)
+time.sleep(1)
     
 # Comment this line out if you have RGBW/GRBW NeoPixels
 pixels.fill((255, 255, 255))
 pixels.show()
-time.sleep(5)
+time.sleep(1)
 
-rainbow_cycle(0.00001)  # rainbow cycle with 1ms delay per step
+for i in range(3):
+    rainbow_cycle(0.001)  # rainbow cycle with 1ms delay per step
 
 time.sleep(1)
 

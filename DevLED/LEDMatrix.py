@@ -1,5 +1,4 @@
 import neopixel
-import time
 import board
 
 class LEDMatrix:
@@ -26,15 +25,23 @@ class LEDMatrix:
         
         # Choose an open pin connected to the Data In of the NeoPixel strip, i.e. board.D18
         # NeoPixels must be connected to D10, D12, D18 or D21 to work.
-        pixel_pin = board.D12
+        pixelPin = board.D12
         
         # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
         ORDER = neopixel.GRB
 
         self.pixels = neopixel.NeoPixel(
-            pixel_pin, self.numLEDs, brightness=self.brightness, auto_write=False, pixel_order=ORDER
+            pixelPin, self.numLEDs, brightness=self.brightness, auto_write=False, pixel_order=ORDER
         )
-        
+    
+    def getNeoPixelObj(self):
+        '''
+            The Neopixel LED Object
+            You can access the Lib directly through this object
+            Becareful!
+        '''
+        return self.pixels
+    
     def getNumLEDs(self):
         return self.numLEDs
     
@@ -78,9 +85,42 @@ class LEDMatrix:
         # Ensure that the adjusted address stays within the range [0, total_leds)
         adjAddress = max(0, min(adjAddress, totalLEDs - 1))
 
+        # Adjust the address for odd columns
+        if col % 2 == 1:
+            adjAddress = (self.LEDRows - (adjAddress %
+                        self.LEDRows)) + (col * self.LEDRows) - 1
+
         return adjAddress
 
-
+    def setLEDbyAddress(self, address: int, red: int, green: int, blue: int, show=False):
+        '''
+            Sets a single specific LED to a r g b value given a row and col
+            rgb values must be between 0 - 255
+            This doesn't take holes into account!!
+        '''
+        try:
+            self.pixels[address] = (red, blue, green)
+            print("Setting LED: ", address, " to R=", red,
+                    " G=", green, " B=", blue, sep="")
+        except:
+           print("LED Address: ", address, " Out of Bounds!!", sep="")
+        
+        if show:
+            self.pixels.show()
+        
+    def setLEDbyRowCol(self, row: int, col: int, red: int, green: int, blue: int, show=False):
+        '''
+            Sets a single specific LED to a r g b value given a row and col
+            
+            rgb values must be between 0 - 255
+        '''
+        address = self.getLEDAddress(row, col)
+        
+        if address is None:
+            return
+        
+        self.setLEDbyAddress(address, red, green, blue, show)
+        
     def fillMatrix(self, red:int, green:int, blue:int):
         '''`
             This will fill all the LEDs with the same color
@@ -101,16 +141,8 @@ class LEDMatrix:
         '''
 
         for i in range(self.LEDRows):
-            # Calculate the correct LED address to set to emulate a "column"
-            currLEDNum = self.getLEDAddress(i, col)
-            if currLEDNum is not None:
-                try:
-                    self.pixels[currLEDNum] = (red, blue, green)
-                    print("Setting LED: ", currLEDNum, " to R=", red,
-                        " G=", green, " B=", blue, sep="")
-                except:
-                    print("LED Address: ", currLEDNum, " Out of Bounds!!", sep="")
-                    
+            self.setLEDbyRowCol(i, col, red, green, blue)
+   
         self.pixels.show()
 
     def fillRow(self, row:int, red:int, green:int, blue:int):
@@ -123,20 +155,6 @@ class LEDMatrix:
         '''
 
         for i in range(self.LEDCols):
-            # Calculate the correct LED address to set to emulate a "column"
-            currLEDNum = self.getLEDAddress(row, i)
-            if currLEDNum is not None:
-                try:
-                    self.pixels[currLEDNum] = (red, blue, green)
-                    print("Setting LED: ", currLEDNum, " to R=", red,
-                          " G=", green, " B=", blue, sep="")
-                except:
-                    print("LED Address: ", currLEDNum,
-                          " Out of Bounds!!", sep="")
+            self.setLEDbyRowCol(row, i, red, green, blue)
 
-                # TODO Move this out of the for loop test code!
-                self.pixels.show()
-        
-        
-# TODO write the setLEDbyRowCol function
-
+        self.pixels.show()
